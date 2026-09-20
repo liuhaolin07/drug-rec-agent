@@ -198,6 +198,7 @@ drug-rec-agent/
 - **MIMIC-III Clinical Database Demo v1.4** — Johnson et al., MIT-LCP(ODbL v1.0)
 - **DDInter 药物相互作用数据库** — scbdd.com, 请引用其 Nucleic Acids Research 论文
 - **openFDA** — 美国 FDA 公开药物说明书数据
+- **数据许可**：本仓库不含任何原始数据（MIT 仅覆盖代码）；下载使用时请遵守 MIMIC-III demo（ODbL v1.0）与 DDInter（仅限学术研究）各自的条款。
 - 本项目为独立构建的教学/研究原型, 与上述数据提供方无隶属关系。
 
 ## 10. 诚信声明
