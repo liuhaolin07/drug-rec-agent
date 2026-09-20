@@ -1,0 +1,196 @@
+{
+  "hadm_id": 118192,
+  "eval": {
+    "recommended_parsed": 4,
+    "hits": 2,
+    "target_size": 12,
+    "recall@10": 0.16666666666666666,
+    "hit_drugs": [
+      "Docusate",
+      "Pantoprazole"
+    ],
+    "ddi_major@10": 0,
+    "ddi_major_moderate@10": 0,
+    "hadm_id": 118192,
+    "steps": 9,
+    "tool_calls": 8,
+    "tool_errors": 0,
+    "seconds": 51.2
+  },
+  "final": "**推荐清单**:  \n- **Docusate** | 推荐理由: GNN评分2.081，支持诊断包括充血性心力衰竭(共现33次)、心房颤动(32次)、急性呼吸衰竭(19次)；相似病例中常用(5/5例)。 | 安全说明: 与已知用药无Major冲突；作为 stool softener，可辅助缓解便秘，但需避免与矿物油同用。  \n- **Acetaminophen** | 推荐理由: GNN评分2.066，支持诊断包括心房颤动(34次)、充血性心力衰竭(27次)、急性呼吸衰竭(22次)；相似病例中常用(5/5例)。 | 安全说明: 与已知用药无Major冲突；需注意肝脏警告，每日不超过4000mg，避免与含酒精饮料同用。  \n- **Vancomycin** | 推荐理由: GNN评分1.928，支持诊断包括心房颤动(26次)、充血性心力衰竭(25次)、急性呼吸衰竭(25次)；相似病例中常用(4/5例)。 | 安全说明: 与已知用药无Major冲突；用于严重感染，但需监测肾功能和血小板(患者有血小板减少症)，输注速度应缓慢。  \n- **Pantoprazole** | 推荐理由: GNN评分1.887，支持诊断包括充血性心力衰竭(27次)、心房颤动(26次)、急性呼吸衰竭(24次)；相似病例中常用(3/5例)。 | 安全说明: 与已知用药无Major冲突；用于胃食管反流或应激性溃疡预防，但需注意潜在药物相互作用(如与氯化钾的未知级别冲突)。  \n\n**风险提示**:  \n- 未覆盖项: GNN推荐的Midazolam、Fentanyl因患者有急性呼吸衰竭，使用镇静剂可能抑制呼吸，故未推荐；Pneumococcal Vac Polyvalent为疫苗，非紧急用药，需根据临床需要决定。  \n- 需药师复核要点: 已知用药中存在Major冲突，如Insulin Human与Levofloxacin、Heparin与Enoxaparin，需评估联合使用的必要性并加强监测；所有推荐药物需结合患者当前状况(如血小板减少症、肾功能)个体化调整。  \n\n推荐清单: Docusate, Acetaminophen, Vancomycin, Pantoprazole  \n本结果为研究原型输出，不构成医疗建议。",
+  "messages": [
+    {
+      "role": "system",
+      "content": "你是一个\"可信药物推荐\"研究原型中的用药推荐智能体, 工作流程有严格规范:\n\n1. 必须先调用 patient_profile 获取患者诊断与已知用药, 不得跳过。\n2. 调用 recommend_drugs 获得 GNN 候选推荐; 可以自由调整/增删候选, 但每一项都要有依据。\n3. 对最终要推荐的完整清单(与已知用药一起)调用 check_ddi 核对相互作用; 如发现 Major 冲突, 必须剔除或明确警示。\n4. 需要时可用 drug_info 查说明书、find_similar_admissions 找相似病例作为佐证。\n5. 严禁编造工具没有返回的信息(药名、数字、证据都不许编)。\n6. 药名一律使用英文原名。\n\n最终回答格式(中文, 简明):\n- **推荐清单**: 每行一项, 格式 `药物名 | 推荐理由(引用诊断或证据数字) | 安全说明`\n- **风险提示**: 未覆盖项、需药师复核的要点\n- 最后一行必须严格为: `推荐清单: 药名1, 药名2, ...` (英文药名, 逗号分隔, 供评测解析)\n- 结尾注明: 本结果为研究原型输出, 不构成医疗建议。"
+    },
+    {
+      "role": "user",
+      "content": "请为住院号 118192 的患者给出用药推荐(在其已知用药基础上补充)。按系统要求先取证再推荐, 最后给出规定格式的清单。"
+    },
+    {
+      "role": "assistant",
+      "reasoning_content": "首先，我需要按照系统要求处理住院号118192的患者。工作流程是：\n\n1. 充分调用patient_profile获取患者诊断与已知用药，不得跳过。\n2. 调用recommend_drugs获得GNN候选推荐；可以自由调整/增删候选，但每一项都要有依据。\n3. 对最终要推荐的完整清单（与已知用药一起）调用check_ddi核对相互作用；如发现Major冲突，必须剔除或明确警示。\n4. 需要时可用drug_info查说明书、find_similar_admissions找相似病例作为佐证。\n5. 严禁编造工具没有返回的信息（药名、数字、证据都不许编）。\n6. 药名一律使用英文原名。\n\n最终回答格式（中文，简明）：\n- **推荐清单**: 每行一项，格式 `药物名 | 推荐理由(引用诊断或证据数字) | 安全说明`\n- **风险提示**: 未覆盖项、需药师复核的要点\n- 最后一行必须严格为: `推荐清单: 药名1, 药名2, ...` (英文药名, 逗号分隔, 供评测解析)\n- 结尾注明: 本结果为研究原型输出, 不构成医疗建议。\n\n所以，我需要先调用patient_profile来获取患者信息。\n",
+      "tool_calls": [
+        {
+          "index": 0,
+          "type": "function",
+          "id": "call_4142630b8bca40eb9d96ce2c",
+          "function": {
+            "name": "patient_profile",
+            "arguments": "{\"hadm_id\": 118192}"
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "tool_call_id": "call_4142630b8bca40eb9d96ce2c",
+      "content": "{\"hadm_id\": 118192, \"patient_age_bucket\": 49.1, \"gender\": \"M\", \"n_conditions\": 17, \"conditions\": [{\"icd9\": \"42731\", \"title\": \"Atrial fibrillation\"}, {\"icd9\": \"4280\", \"title\": \"Congestive heart failure, unspecified\"}, {\"icd9\": \"51881\", \"title\": \"Acute respiratory failure\"}, {\"icd9\": \"2875\", \"title\": \"Thrombocytopenia, unspecified\"}, {\"icd9\": \"4240\", \"title\": \"Mitral valve disorders\"}, {\"icd9\": \"V5867\", \"title\": \"Long-term (current) use of insulin\"}, {\"icd9\": \"2768\", \"title\": \"Hypopotassemia\"}, {\"icd9\": \"32723\", \"title\": \"Obstructive sleep apnea (adult)(pediatric)\"}, {\"icd9\": \"42832\", \"title\": \"Chronic diastolic heart failure\"}, {\"icd9\": \"45981\", \"title\": \"Venous (peripheral) insufficiency, unspecified\"}, {\"icd9\": \"49121\", \"title\": \"Obstructive chronic bronchitis with (acute) exacerbation\"}, {\"icd9\": \"27801\", \"title\": \"Morbid obesity\"}, {\"icd9\": \"4168\", \"title\": \"Other chronic pulmonary heart diseases\"}, {\"icd9\": \"25002\", \"title\": \"Diabetes mellitus without mention of complication, type II or unspecified type, uncontrolled\"}, {\"icd9\": \"29562\", \"title\": \"Schizophrenic disorders, residual type, chronic\"}, {\"icd9\": \"V433\", \"title\": \"Heart valve replaced by other means\"}, {\"icd9\": \"70712\", \"title\": \"Ulcer of calf\"}], \"known_medications\": [\"Insulin Human\", \"Potassium Chloride\", \"Heparin\", \"Senna\", \"Metoprolol\", \"Salbutamol\", \"Lorazepam\", \"Levofloxacin\", \"Multivitamins\", \"Enoxaparin\", \"Folic Acid\", \"Thiamine\"], \"note\": \"known_medications 为患者当前/已知在用药清单; 任务是在此基础上推荐需要补充的药物\"}"
+    },
+    {
+      "role": "assistant",
+      "reasoning_content": "现在，我已经获取了患者的基本信息。患者有17个诊断，包括房颤、充血性心力衰竭、急性呼吸衰竭、血小板减少症、二尖瓣疾病、长期使用胰岛素、低钾血症、阻塞性睡眠呼吸暂停、慢性舒张性心力衰竭、静脉功能不全、阻塞性慢性支气管炎急性加重、肥胖、慢性肺源性心脏病、未控制的2型糖尿病、精神分裂症残留型、心脏瓣膜置换、小腿溃疡。\n\n已知用药包括：胰岛素、氯化钾、肝素、番泻叶、美托洛尔、沙丁胺醇、劳拉西泮、左氧氟沙星、多种维生素、叶酸、硫胺素。\n\n接下来，我需要调用recommend_drugs来获得GNN候选推荐。我应该使用默认的k值10。\n",
+      "tool_calls": [
+        {
+          "index": 0,
+          "type": "function",
+          "id": "call_e200ca7332a34dcb8a3e0755",
+          "function": {
+            "name": "recommend_drugs",
+            "arguments": "{\"hadm_id\": 118192, \"k\": 10}"
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "tool_call_id": "call_e200ca7332a34dcb8a3e0755",
+      "content": "{\"method\": \"GNN 图表示学习打分 + DDI 安全重排(排除与已知用药 Major/Moderate 冲突)\", \"recommendations\": [{\"drug\": \"Docusate\", \"score\": 2.081, \"historical_use_admissions\": 83, \"support_conditions\": [{\"title\": \"Congestive heart failure, unspecified\", \"cooccur_admissions\": 33}, {\"title\": \"Atrial fibrillation\", \"cooccur_admissions\": 32}, {\"title\": \"Acute respiratory failure\", \"cooccur_admissions\": 19}]}, {\"drug\": \"Acetaminophen\", \"score\": 2.066, \"historical_use_admissions\": 87, \"support_conditions\": [{\"title\": \"Atrial fibrillation\", \"cooccur_admissions\": 34}, {\"title\": \"Congestive heart failure, unspecified\", \"cooccur_admissions\": 27}, {\"title\": \"Acute respiratory failure\", \"cooccur_admissions\": 22}]}, {\"drug\": \"Vancomycin\", \"score\": 1.928, \"historical_use_admissions\": 70, \"support_conditions\": [{\"title\": \"Atrial fibrillation\", \"cooccur_admissions\": 26}, {\"title\": \"Congestive heart failure, unspecified\", \"cooccur_admissions\": 25}, {\"title\": \"Acute respiratory failure\", \"cooccur_admissions\": 25}]}, {\"drug\": \"Pantoprazole\", \"score\": 1.887, \"historical_use_admissions\": 79, \"support_conditions\": [{\"title\": \"Congestive heart failure, unspecified\", \"cooccur_admissions\": 27}, {\"title\": \"Atrial fibrillation\", \"cooccur_admissions\": 26}, {\"title\": \"Acute respiratory failure\", \"cooccur_admissions\": 24}]}, {\"drug\": \"Senna\", \"score\": 1.79, \"historical_use_admissions\": 69, \"support_conditions\": [{\"title\": \"Atrial fibrillation\", \"cooccur_admissions\": 26}, {\"title\": \"Congestive heart failure, unspecified\", \"cooccur_admissions\": 26}, {\"title\": \"Acute respiratory failure\", \"cooccur_admissions\": 17}]}, {\"drug\": \"Potassium Chloride\", \"score\": 1.781, \"historical_use_admissions\": 89, \"support_conditions\": [{\"title\": \"Atrial fibrillation\", \"cooccur_admissions\": 32}, {\"title\": \"Acute respiratory failure\", \"cooccur_admissions\": 27}, {\"title\": \"Congestive heart failure, unspecified\", \"cooccur_admissions\": 25}]}, {\"drug\": \"Lorazepam\", \"score\": 1.511, \"historical_use_admissions\": 43, \"support_conditions\": [{\"title\": \"Acute respiratory failure\", \"cooccur_admissions\": 17}, {\"title\": \"Atrial fibrillation\", \"cooccur_admissions\": 16}, {\"title\": \"Congestive heart failure, unspecified\", \"cooccur_admissions\": 12}]}, {\"drug\": \"Midazolam\", \"score\": 1.445, \"historical_use_admissions\": 38, \"support_conditions\": [{\"title\": \"Acute respiratory failure\", \"cooccur_admissions\": 18}, {\"title\": \"Atrial fibrillation\", \"cooccur_admissions\": 11}, {\"title\": \"Congestive heart failure, unspecified\", \"cooccur_admissions\": 10}]}, {\"drug\": \"Fentanyl\", \"score\": 1.213, \"historical_use_admissions\": 53, \"support_conditions\": [{\"title\": \"Atrial fibrillation\", \"cooccur_admissions\": 23}, {\"title\": \"Acute respiratory failure\", \"cooccur_admissions\": 17}, {\"title\": \"Congestive heart failure, unspecified\", \"cooccur_admissions\": 11}]}, {\"drug\": \"Pneumococcal Vac Polyvalent\", \"score\": 1.155, \"historical_use_admissions\": 33, \"support_conditions\": [{\"title\": \"Atrial fibrillation\", \"cooccur_admissions\": 17}, {\"title\": \"Congestive heart failure, unspecified\", \"cooccur_admissions\": 16}, {\"title\": \"Acute respiratory failure\", \"cooccur_admissions\": 8}]}], \"excluded_unsafe_candidates\": [{\"drug\": \"Insulin Human\", \"conflicts_with\": [\"Metoprolol\", \"Salbutamol\", \"Levofloxacin\"], \"max_level\": \"Major\"}, {\"drug\": \"Heparin\", \"conflicts_with\": [\"Enoxaparin\"], \"max_level\": \"Major\"}, {\"drug\": \"Magnesium Sulfate\", \"conflicts_with\": [\"Levofloxacin\"], \"max_level\": \"Moderate\"}, {\"drug\": \"Morphine\", \"conflicts_with\": [\"Metoprolol\", \"Lorazepam\"], \"max_level\": \"Major\"}, {\"drug\": \"Furosemide\", \"conflicts_with\": [\"Insulin Human\", \"Salbutamol\"], \"max_level\": \"Moderate\"}, {\"drug\": \"Metoprolol\", \"conflicts_with\": [\"Insulin Human\", \"Salbutamol\"], \"max_level\": \"Moderate\"}, {\"drug\": \"Bisacodyl\", \"conflicts_with\": [\"Salbutamol\", \"Levofloxacin\"], \"max_level\": \"Moderate\"}, {\"drug\": \"Salbutamol\", \"conflicts_with\": [\"Insulin Human\", \"Metoprolol\", \"Levofloxacin\"], \"max_level\": \"Moderate\"}], \"note\": \"score 为模型原始打分(越高越匹配), support_conditions 给出证据链; 结果需药师复核\"}"
+    },
+    {
+      "role": "assistant",
+      "reasoning_content": "GNN推荐返回了10个候选药物，但其中一些是患者已知用药（如Senna、Potassium Chloride、Lorazepam），所以我不需要重复推荐它们。我需要从推荐列表中筛选出新的药物，并确保它们与已知用药没有DDI冲突。\n\n已知用药：Insulin Human, Potassium Chloride, Heparin, Senna, Metoprolol, Salbutamol, Lorazepam, Levofloxacin, Multivitamins, Enoxaparin, Folic Acid, Thiamine。\n\n推荐列表中的新药：Docusate, Acetaminophen, Vancomycin, Pantoprazole, Midazolam, Fentanyl, Pneumococcal Vac Polyvalent。但Senna、Potassium Chloride、Lorazepam已在用药中，所以排除。\n\n现在，我需要检查这些新药与已知用药的DDI。但recommend_drugs已经排除了与已知用药有Major/Moderate冲突的候选，所以这些推荐应该是相对安全的。不过，我还需要对最终推荐清单调用check_ddi。\n\n另外，我应该考虑患者的诊断。患者有房颤、心衰、呼吸衰竭、血小板减少症等。推荐药物中，Docusate是 stool softener，Acetaminophen是镇痛，Vancomycin是抗生素，Pantoprazole是PPI，Midazolam和Fentanyl是镇静剂，Pneumococcal Vac是疫苗。\n\n我需要确保推荐是合理的。例如，患者有血小板减少症，使用阿司匹林等可能有问题，但Acetaminophen相对安全。患者有呼吸衰竭，使用镇静剂如Midazolam和Fentanyl需要谨慎，但GNN给出了支持条件，可能基于历史数据。\n\n现在，我应该调用check_ddi来核对最终推荐清单。最终清单包括已知用药和推荐的新药。但check_ddi是核对一批药物两两之间的相互作用。我需要列出所有药物。\n\n已知用药：Insulin Human, Potassium Chloride, Heparin, Senna, Metoprolol, Salbutamol, Lorazepam, Levofloxacin, Multivitamins, Enoxaparin, Folic Acid, Thiamine。\n\n推荐新药：Docusate, Acetaminophen, Vancomycin, Pantoprazole, Midazolam, Fentanyl, Pneumococcal Vac Polyvalent。\n\n但Pneumococcal Vac Polyvalent是疫苗，可能不是紧急用药，但可以考虑。\n\n我需要决定最终推荐哪些药物。GNN推荐了10个，但有些是已知用药，所以新药是7个。但可能不是所有都需要推荐，我需要基于诊断和证据调整。\n\n首先，调用check_ddi检查所有药物（已知+推荐新药）的相互作用。\n",
+      "tool_calls": [
+        {
+          "index": 0,
+          "type": "function",
+          "id": "call_f593b3e0e3544ff092d3c271",
+          "function": {
+            "name": "check_ddi",
+            "arguments": "{\"drugs\": [\"Insulin Human\", \"Potassium Chloride\", \"Heparin\", \"Senna\", \"Metoprolol\", \"Salbutamol\", \"Lorazepam\", \"Levofloxacin\", \"Multivitamins\", \"Enoxaparin\", \"Folic Acid\", \"Thiamine\", \"Docusate\", \"Acetaminophen\", \"Vancomycin\", \"Pantoprazole\", \"Midazolam\", \"Fentanyl\", \"Pneumococcal Vac Polyvalent\"]}"
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "tool_call_id": "call_f593b3e0e3544ff092d3c271",
+      "content": "{\"source\": \"DDInter 数据库(本地 16 万对记录)\", \"n_checked_pairs\": 105, \"interactions\": [{\"drug_a\": \"Insulin Human\", \"drug_b\": \"Levofloxacin\", \"level\": \"Major\", \"ddinter_ids\": [\"DDInter934\", \"DDInter1055\"]}, {\"drug_a\": \"Heparin\", \"drug_b\": \"Enoxaparin\", \"level\": \"Major\", \"ddinter_ids\": [\"DDInter856\", \"DDInter645\"]}, {\"drug_a\": \"Insulin Human\", \"drug_b\": \"Metoprolol\", \"level\": \"Moderate\", \"ddinter_ids\": [\"DDInter934\", \"DDInter1200\"]}, {\"drug_a\": \"Insulin Human\", \"drug_b\": \"Salbutamol\", \"level\": \"Moderate\", \"ddinter_ids\": [\"DDInter934\", \"DDInter1632\"]}, {\"drug_a\": \"Metoprolol\", \"drug_b\": \"Salbutamol\", \"level\": \"Moderate\", \"ddinter_ids\": [\"DDInter1200\", \"DDInter1632\"]}, {\"drug_a\": \"Salbutamol\", \"drug_b\": \"Levofloxacin\", \"level\": \"Moderate\", \"ddinter_ids\": [\"DDInter1632\", \"DDInter1055\"]}, {\"drug_a\": \"Insulin Human\", \"drug_b\": \"Potassium Chloride\", \"level\": \"Minor\", \"ddinter_ids\": [\"DDInter934\", \"DDInter1497\"]}, {\"drug_a\": \"Potassium Chloride\", \"drug_b\": \"Heparin\", \"level\": \"Unknown\", \"ddinter_ids\": [\"DDInter1497\", \"DDInter856\"]}, {\"drug_a\": \"Potassium Chloride\", \"drug_b\": \"Metoprolol\", \"level\": \"Unknown\", \"ddinter_ids\": [\"DDInter1200\", \"DDInter1497\"]}, {\"drug_a\": \"Potassium Chloride\", \"drug_b\": \"Salbutamol\", \"level\": \"Unknown\", \"ddinter_ids\": [\"DDInter1497\", \"DDInter1632\"]}, {\"drug_a\": \"Potassium Chloride\", \"drug_b\": \"Lorazepam\", \"level\": \"Unknown\", \"ddinter_ids\": [\"DDInter1092\", \"DDInter1497\"]}, {\"drug_a\": \"Potassium Chloride\", \"drug_b\": \"Folic Acid\", \"level\": \"Unknown\", \"ddinter_ids\": [\"DDInter771\", \"DDInter1497\"]}, {\"drug_a\": \"Potassium Chloride\", \"drug_b\": \"Acetaminophen\", \"level\": \"Unknown\", \"ddinter_ids\": [\"DDInter14\", \"DDInter1497\"]}, {\"drug_a\": \"Potassium Chloride\", \"drug_b\": \"Vancomycin\", \"level\": \"Unknown\", \"ddinter_ids\": [\"DDInter1916\", \"DDInter1497\"]}, {\"drug_a\": \"Potassium Chloride\", \"drug_b\": \"Pantoprazole\", \"level\": \"Unknown\", \"ddinter_ids\": [\"DDInter1388\", \"DDInter1497\"]}, {\"drug_a\": \"Potassium Chloride\", \"drug_b\": \"Midazolam\", \"level\": \"Unknown\", \"ddinter_ids\": [\"DDInter1212\", \"DDInter1497\"]}, {\"drug_a\": \"Potassium Chloride\", \"drug_b\": \"Fentanyl\", \"level\": \"Unknown\", \"ddinter_ids\": [\"DDInter1497\", \"DDInter722\"]}, {\"drug_a\": \"Heparin\", \"drug_b\": \"Metoprolol\", \"level\": \"Unknown\", \"ddinter_ids\": [\"DDInter1200\", \"DDInter856\"]}, {\"drug_a\": \"Heparin\", \"drug_b\": \"Salbutamol\", \"level\": \"Unknown\", \"ddinter_ids\": [\"DDInter1632\", \"DDInter856\"]}, {\"drug_a\": \"Heparin\", \"drug_b\": \"Lorazepam\", \"level\": \"Unknown\", \"ddinter_ids\": [\"DDInter1092\", \"DDInter856\"]}, {\"drug_a\": \"Heparin\", \"drug_b\": \"Folic Acid\", \"level\": \"Unknown\", \"ddinter_ids\": [\"DDInter771\", \"DDInter856\"]}, {\"drug_a\": \"Heparin\", \"drug_b\": \"Acetaminophen\", \"level\": \"Unknown\", \"ddinter_ids\": [\"DDInter14\", \"DDInter856\"]}, {\"drug_a\": \"Heparin\", \"drug_b\": \"Vancomycin\", \"level\": \"Unknown\", \"ddinter_ids\": [\"DDInter1916\", \"DDInter856\"]}, {\"drug_a\": \"Heparin\", \"drug_b\": \"Pantoprazole\", \"level\": \"Unknown\", \"ddinter_ids\": [\"DDInter1388\", \"DDInter856\"]}, {\"drug_a\": \"Heparin\", \"drug_b\": \"Midazolam\", \"level\": \"Unknown\", \"ddinter_ids\": [\"DDInter1212\", \"DDInter856\"]}, {\"drug_a\": \"Heparin\", \"drug_b\": \"Fentanyl\", \"level\": \"Unknown\", \"ddinter_ids\": [\"DDInter722\", \"DDInter856\"]}, {\"drug_a\": \"Metoprolol\", \"drug_b\": \"Folic Acid\", \"level\": \"Unknown\", \"ddinter_ids\": [\"DDInter771\", \"DDInter1200\"]}, {\"drug_a\": \"Metoprolol\", \"drug_b\": \"Vancomycin\", \"level\": \"Unknown\", \"ddinter_ids\": [\"DDInter1200\", \"DDInter1916\"]}, {\"drug_a\": \"Metoprolol\", \"drug_b\": \"Pantoprazole\", \"level\": \"Unknown\", \"ddinter_ids\": [\"DDInter1388\", \"DDInter1200\"]}, {\"drug_a\": \"Salbutamol\", \"drug_b\": \"Lorazepam\", \"level\": \"Unknown\", \"ddinter_ids\": [\"DDInter1092\", \"DDInter1632\"]}, {\"drug_a\": \"Salbutamol\", \"drug_b\": \"Folic Acid\", \"level\": \"Unknown\", \"ddinter_ids\": [\"DDInter771\", \"DDInter1632\"]}, {\"drug_a\": \"Salbutamol\", \"drug_b\": \"Acetaminophen\", \"level\": \"Unknown\", \"ddinter_ids\": [\"DDInter14\", \"DDInter1632\"]}, {\"drug_a\": \"Salbutamol\", \"drug_b\": \"Vancomycin\", \"level\": \"Unknown\", \"ddinter_ids\": [\"DDInter1916\", \"DDInter1632\"]}, {\"drug_a\": \"Salbutamol\", \"drug_b\": \"Pantoprazole\", \"level\": \"Unknown\", \"ddinter_ids\": [\"DDInter1388\", \"DDInter1632\"]}, {\"drug_a\": \"Salbutamol\", \"drug_b\": \"Midazolam\", \"level\": \"Unknown\", \"ddinter_ids\": [\"DDInter1212\", \"DDInter1632\"]}, {\"drug_a\": \"Salbutamol\", \"drug_b\": \"Fentanyl\", \"level\": \"Unknown\", \"ddinter_ids\": [\"DDInter722\", \"DDInter1632\"]}, {\"drug_a\": \"Lorazepam\", \"drug_b\": \"Folic Acid\", \"level\": \"Unknown\", \"ddinter_ids\": [\"DDInter771\", \"DDInter1092\"]}, {\"drug_a\": \"Lorazepam\", \"drug_b\": \"Vancomycin\", \"level\": \"Unknown\", \"ddinter_ids\": [\"DDInter1092\", \"DDInter1916\"]}, {\"drug_a\": \"Lorazepam\", \"drug_b\": \"Pantoprazole\", \"level\": \"Unknown\", \"ddinter_ids\": [\"DDInter1092\", \"DDInter1388\"]}, {\"drug_a\": \"Folic Acid\", \"drug_b\": \"Acetaminophen\", \"level\": \"Unknown\", \"ddinter_ids\": [\"DDInter771\", \"DDInter14\"]}, {\"drug_a\": \"Folic Acid\", \"drug_b\": \"Vancomycin\", \"level\": \"Unknown\", \"ddinter_ids\": [\"DDInter771\", \"DDInter1916\"]}, {\"drug_a\": \"Folic Acid\", \"drug_b\": \"Pantoprazole\", \"level\": \"Unknown\", \"ddinter_ids\": [\"DDInter771\", \"DDInter1388\"]}, {\"drug_a\": \"Folic Acid\", \"drug_b\": \"Fentanyl\", \"level\": \"Unknown\", \"ddinter_ids\": [\"DDInter771\", \"DDInter722\"]}, {\"drug_a\": \"Acetaminophen\", \"drug_b\": \"Vancomycin\", \"level\": \"Unknown\", \"ddinter_ids\": [\"DDInter14\", \"DDInter1916\"]}, {\"drug_a\": \"Acetaminophen\", \"drug_b\": \"Pantoprazole\", \"level\": \"Unknown\", \"ddinter_ids\": [\"DDInter1388\", \"DDInter14\"]}, {\"drug_a\": \"Vancomycin\", \"drug_b\": \"Pantoprazole\", \"level\": \"Unknown\", \"ddinter_ids\": [\"DDInter1388\", \"DDInter1916\"]}, {\"drug_a\": \"Vancomycin\", \"drug_b\": \"Midazolam\", \"level\": \"Unknown\", \"ddinter_ids\": [\"DDInter1916\", \"DDInter1212\"]}, {\"drug_a\": \"Vancomycin\", \"drug_b\": \"Fentanyl\", \"level\": \"Unknown\", \"ddinter_ids\": [\"DDInter1916\", \"DDInter722\"]}, {\"drug_a\": \"Pantoprazole\", \"drug_b\": \"Midazolam\", \"level\": \"Unknown\", \"ddinter_ids\": [\"DDInter1388\", \"DDInter1212\"]}, {\"drug_a\": \"Pantoprazole\", \"drug_b\": \"Fentanyl\", \"level\": \"Unknown\", \"ddinter_ids\": [\"DDInter1388\", \"DDInter722\"]}], \"unresolved_names\": [\"Senna\", \"Multivitamins\", \"Thiamine\", \"Pneumococcal Vac Polyvalent\"], \"note\": \"unresolved_names 表示该药不在 DDI 库覆盖范围内, 需人工核对; 无记录不等于绝对安全\"}"
+    },
+    {
+      "role": "assistant",
+      "reasoning_content": "DDI检查结果显示了一些Major和Moderate级别的相互作用。主要问题：\n\n- Insulin Human 与 Levofloxacin: Major 冲突\n- Heparin 与 Enoxaparin: Major 冲突\n- Insulin Human 与 Metoprolol: Moderate\n- Insulin Human 与 Salbutamol: Moderate\n- Metoprolol 与 Salbutamol: Moderate\n- Salbutamol 与 Levofloxacin: Moderate\n\n这些冲突中，有些是已知用药之间的，例如Heparin和Enoxaparin都是抗凝药，同时使用可能增加出血风险，但患者可能确实需要两者，需要警示。Insulin Human与Levofloxacin的Major冲突需要注意，但Levofloxacin是已知用药，可能用于感染。\n\n对于推荐的新药，检查结果中没有显示新药与已知用药之间的Major冲突，但有一些Unknown级别的，这表示数据库中没有记录，不代表绝对安全。\n\n现在，我需要决定最终推荐哪些药物。GNN推荐了7个新药：Docusate, Acetaminophen, Vancomycin, Pantoprazole, Midazolam, Fentanyl, Pneumococcal Vac Polyvalent。\n\n但其中一些可能不适合患者。例如，患者有血小板减少症（Thrombocytopenia），使用Vancomycin可能需要注意肾功能和血小板，但GNN支持诊断中有房颤和心衰，可能用于感染。\n\nMidazolam和Fentanyl是镇静剂，患者有急性呼吸衰竭，使用镇静剂可能抑制呼吸，需要谨慎。但GNN支持诊断中有急性呼吸衰竭，可能基于历史数据用于镇静。\n\n我应该基于诊断和证据来调整推荐。或许我应该优先推荐那些与患者诊断高度匹配且安全的药物。\n\n另外，我需要调用drug_info或find_similar_admissions来获取更多证据。\n\n首先，让我为推荐的新药调用drug_info，以获取更多信息。\n",
+      "tool_calls": [
+        {
+          "index": 0,
+          "type": "function",
+          "id": "call_fa25d8d5bb2841789b1c9d3a",
+          "function": {
+            "name": "drug_info",
+            "arguments": "{\"drug\": \"Docusate\"}"
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "tool_call_id": "call_fa25d8d5bb2841789b1c9d3a",
+      "content": "{\"drug\": \"Docusate\", \"local\": {\"in_demo_drug_set\": true, \"display\": \"Docusate\", \"historical_use_admissions\": 83, \"frequent_support_conditions\": [{\"title\": \"Unspecified essential hypertension\", \"cooccur_admissions\": 33}, {\"title\": \"Congestive heart failure, unspecified\", \"cooccur_admissions\": 33}, {\"title\": \"Atrial fibrillation\", \"cooccur_admissions\": 32}, {\"title\": \"Acute kidney failure, unspecified\", \"cooccur_admissions\": 31}, {\"title\": \"Diabetes mellitus without mention of complication, type II or unspecified type, not stated as uncontrolled\", \"cooccur_admissions\": 23}]}, \"ddi_profile\": {\"ddinter_name\": \"docusate\", \"partner_count_by_level\": {\"Moderate\": 3, \"Minor\": 1}}, \"fda_label\": {\"generic_name\": \"DOCUSATE SODIUM 100MG\", \"indications_and_usage\": \"Uses relieves occasional constipation (irregularity) generally produces bowel movement in 12 to 72 hours\", \"warnings\": \"Warnings Do not use if you are presently taking mineral oil, unless told to do so by a doctor Ask a doctor before use if you have stomach pain nausea vomiting noticed a sudden change in bowel habits that lasts over 2 weeks Stop use and ask a doctor if you have rectal bleeding or fail to have bowel movement after use of a laxative. These could be signs of a serious condition. you need to use a stool softener laxative \", \"drug_interactions\": null, \"source_url\": \"https://api.fda.gov/drug/label.json?limit=1&search=openfda.generic_name%3A%22docusate%22\"}, \"source\": \"MIMIC-III demo + DDInter + openFDA drug label API\"}"
+    },
+    {
+      "role": "assistant",
+      "reasoning_content": "Docusate 是一种 stool softener，用于缓解便秘。患者有便秘风险吗？诊断中没有直接提到便秘，但患者有精神分裂症、肥胖等，可能使用泻药。已知用药中有 Senna，也是一种泻药，所以 Docusate 可能作为辅助。但 GNN 推荐它，支持条件包括心衰和房颤，可能因为这些患者常便秘。\n\n接下来，检查 Acetaminophen。\n",
+      "tool_calls": [
+        {
+          "index": 0,
+          "type": "function",
+          "id": "call_0d08f61d334b4242a98f81f1",
+          "function": {
+            "name": "drug_info",
+            "arguments": "{\"drug\": \"Acetaminophen\"}"
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "tool_call_id": "call_0d08f61d334b4242a98f81f1",
+      "content": "{\"drug\": \"Acetaminophen\", \"local\": {\"in_demo_drug_set\": true, \"display\": \"Acetaminophen\", \"historical_use_admissions\": 87, \"frequent_support_conditions\": [{\"title\": \"Unspecified essential hypertension\", \"cooccur_admissions\": 39}, {\"title\": \"Atrial fibrillation\", \"cooccur_admissions\": 34}, {\"title\": \"Acute kidney failure, unspecified\", \"cooccur_admissions\": 28}, {\"title\": \"Congestive heart failure, unspecified\", \"cooccur_admissions\": 27}, {\"title\": \"Urinary tract infection, site not specified\", \"cooccur_admissions\": 24}]}, \"ddi_profile\": {\"ddinter_name\": \"acetaminophen\", \"partner_count_by_level\": {\"Minor\": 17, \"Moderate\": 37, \"Unknown\": 216, \"Major\": 4}}, \"fda_label\": {\"generic_name\": \"ACETAMINOPHEN\", \"indications_and_usage\": \"Uses temporarily relieves minor aches and pains due to: headache the common cold backache minor pain of arthritis toothache muscular aches premenstrual and menstrual cramps temporarily reduces fever\", \"warnings\": \"Warnings Liver warning: This product contains acetaminophen. Severe liver damage may occur if you take more than 4,000 mg of acetaminophen in 24 hours with other drugs containing acetaminophen 3 or more alcoholic drinks every day while using this product Allergy alert: Acetaminophen may cause severe skin reactions. Symptoms may include: skin reddening blisters rash If a skin reaction occurs, stop use and seek medical\", \"drug_interactions\": null, \"source_url\": \"https://api.fda.gov/drug/label.json?limit=1&search=openfda.generic_name%3A%22acetaminophen%22\"}, \"source\": \"MIMIC-III demo + DDInter + openFDA drug label API\"}"
+    },
+    {
+      "role": "assistant",
+      "reasoning_content": "Acetaminophen 是一种镇痛药，患者可能有疼痛需求，但诊断中没有明确疼痛。不过，它常用于发热和疼痛，GNN 支持有房颤和心衰，可能基于历史数据。\n\n接下来，Vancomycin。\n",
+      "tool_calls": [
+        {
+          "index": 0,
+          "type": "function",
+          "id": "call_22b0612c5220408cbe88ae2a",
+          "function": {
+            "name": "drug_info",
+            "arguments": "{\"drug\": \"Vancomycin\"}"
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "tool_call_id": "call_22b0612c5220408cbe88ae2a",
+      "content": "{\"drug\": \"Vancomycin\", \"local\": {\"in_demo_drug_set\": true, \"display\": \"Vancomycin\", \"historical_use_admissions\": 70, \"frequent_support_conditions\": [{\"title\": \"Acute kidney failure, unspecified\", \"cooccur_admissions\": 32}, {\"title\": \"Unspecified essential hypertension\", \"cooccur_admissions\": 27}, {\"title\": \"Atrial fibrillation\", \"cooccur_admissions\": 26}, {\"title\": \"Congestive heart failure, unspecified\", \"cooccur_admissions\": 25}, {\"title\": \"Acute respiratory failure\", \"cooccur_admissions\": 25}]}, \"ddi_profile\": {\"ddinter_name\": \"vancomycin\", \"partner_count_by_level\": {\"Moderate\": 89, \"Major\": 24, \"Unknown\": 341}}, \"fda_label\": {\"generic_name\": \"VANCOMYCIN HYDROCHLORIDE\", \"indications_and_usage\": \"INDICATIONS AND USAGE Vancomycin Hydrochloride for Injection, USP is indicated for the treatment of serious or severe infections caused by susceptible strains of methicillin-resistant (β-lactam-resistant) staphylococci. It is indicated for penicillin-allergic patients, for patients who cannot receive or who have failed to respond to other drugs, including the penicillins or cephalosporins, and for infections caused b\", \"warnings\": \"WARNINGS Infusion Reactions Rapid bolus administration (e.g., over several minutes) may be associated with exaggerated hypotension, including shock and rarely cardiac arrest. Vancomycin hydrochloride for injection should be administered in a diluted solution over a period of not less than 60 minutes to avoid rapid-infusion-related reactions. Stopping the infusion usually results in prompt cessation of these reactions\", \"drug_interactions\": \"Drug Interactions Concomitant administration of vancomycin and anesthetic agents has been associated with erythema and histamine-like flushing (see Pediatric Use, PRECAUTIONS ) and anaphylactoid reactions (see ADVERSE REACTIONS ). Monitor renal function in patients receiving vancomycin and concurrent and/or sequential systemic or topical use of other potentially, neurotoxic and/or nephrotoxic drugs, such as amphoteri\", \"source_url\": \"https://api.fda.gov/drug/label.json?limit=1&search=openfda.generic_name%3A%22vancomycin%22\"}, \"source\": \"MIMIC-III demo + DDInter + openFDA drug label API\"}"
+    },
+    {
+      "role": "assistant",
+      "reasoning_content": "Vancomycin 是一种抗生素，用于严重感染。患者有急性呼吸衰竭和慢性支气管炎急性加重，可能需要抗生素。但诊断中没有明确感染，不过 GNN 支持有急性呼吸衰竭，可能基于历史数据用于感染。\n\n接下来，Pantoprazole。\n",
+      "tool_calls": [
+        {
+          "index": 0,
+          "type": "function",
+          "id": "call_a43f456bdeeb4e84a18d28fb",
+          "function": {
+            "name": "drug_info",
+            "arguments": "{\"drug\": \"Pantoprazole\"}"
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "tool_call_id": "call_a43f456bdeeb4e84a18d28fb",
+      "content": "{\"drug\": \"Pantoprazole\", \"local\": {\"in_demo_drug_set\": true, \"display\": \"Pantoprazole\", \"historical_use_admissions\": 79, \"frequent_support_conditions\": [{\"title\": \"Acute kidney failure, unspecified\", \"cooccur_admissions\": 32}, {\"title\": \"Unspecified essential hypertension\", \"cooccur_admissions\": 31}, {\"title\": \"Congestive heart failure, unspecified\", \"cooccur_admissions\": 27}, {\"title\": \"Atrial fibrillation\", \"cooccur_admissions\": 26}, {\"title\": \"Acute respiratory failure\", \"cooccur_admissions\": 24}]}, \"ddi_profile\": {\"ddinter_name\": \"pantoprazole\", \"partner_count_by_level\": {\"Moderate\": 109, \"Major\": 13, \"Minor\": 19, \"Unknown\": 456}}, \"fda_label\": {\"generic_name\": \"PANTOPRAZOLE SODIUM\", \"indications_and_usage\": \"1 INDICATIONS AND USAGE Pantoprazole Sodium for Injection is indicated for treatment of: gastroesophageal reflux disease (GERD) and a history of erosive esophagitis (EE) for up to 10 days in adults. pathological hypersecretory conditions including Zollinger-Ellison (ZE) Syndrome in adults. Limitations of Use The safety and effectiveness of Pantoprazole Sodium for Injection for the treatment of upper gastrointestinal \", \"warnings\": null, \"drug_interactions\": \"7 DRUG INTERACTIONS See the full prescribing information for a list of clinically important drug interactions. ( 7 ) Table 3 includes drugs with clinically important drug interactions and interaction with diagnostics when administered concomitantly with pantoprazole sodium and instructions for preventing or managing them. Consult the labeling of concomitantly used drugs to obtain further information about interaction\", \"source_url\": \"https://api.fda.gov/drug/label.json?limit=1&search=openfda.generic_name%3A%22pantoprazole%22\"}, \"source\": \"MIMIC-III demo + DDInter + openFDA drug label API\"}"
+    },
+    {
+      "role": "assistant",
+      "reasoning_content": "Pantoprazole 是一种质子泵抑制剂，用于胃食管反流病等。患者可能有胃肠道问题，但诊断中没有明确提到。GNN 支持有心衰和房颤，可能用于预防应激性溃疡。\n\n接下来，Midazolam 和 Fentanyl。由于时间关系，我可能不需要全部查询，但为了安全，我应该检查它们的相互作用。\n\n患者有急性呼吸衰竭，使用镇静剂需要谨慎。GNN 推荐了它们，但可能基于历史数据用于镇静。\n\n现在，我需要决定最终推荐清单。我应该只推荐那些有明确证据且安全的药物。\n\n此外，我可以调用 find_similar_admissions 来获取相似病例的常用药作为佐证。\n",
+      "tool_calls": [
+        {
+          "index": 0,
+          "type": "function",
+          "id": "call_59e0aaf0ccfa46548e6477b0",
+          "function": {
+            "name": "find_similar_admissions",
+            "arguments": "{\"hadm_id\": 118192, \"k\": 5}"
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "tool_call_id": "call_59e0aaf0ccfa46548e6477b0",
+      "content": "{\"query_hadm\": 118192, \"similar_cases\": [{\"hadm_id\": 168674, \"shared_conditions\": [\"Obstructive chronic bronchitis with (acute) exacerbation\", \"Congestive heart failure, unspecified\", \"Acute respiratory failure\"], \"jaccard\": 0.19}, {\"hadm_id\": 148562, \"shared_conditions\": [\"Congestive heart failure, unspecified\", \"Mitral valve disorders\", \"Atrial fibrillation\"], \"jaccard\": 0.13}, {\"hadm_id\": 126002, \"shared_conditions\": [\"Diabetes mellitus without mention of complication, type II or unspecified type, uncontrolled\", \"Congestive heart failure, unspecified\", \"Venous (peripheral) insufficiency, unspecified\"], \"jaccard\": 0.129}, {\"hadm_id\": 111115, \"shared_conditions\": [\"Congestive heart failure, unspecified\", \"Venous (peripheral) insufficiency, unspecified\", \"Atrial fibrillation\"], \"jaccard\": 0.121}, {\"hadm_id\": 182879, \"shared_conditions\": [\"Congestive heart failure, unspecified\", \"Atrial fibrillation\", \"Morbid obesity\"], \"jaccard\": 0.12}], \"frequent_drugs_in_similar_cases\": [{\"drug\": \"Insulin Human\", \"in_n_of_top_cases\": 5}, {\"drug\": \"Acetaminophen\", \"in_n_of_top_cases\": 5}, {\"drug\": \"Heparin\", \"in_n_of_top_cases\": 5}, {\"drug\": \"Docusate\", \"in_n_of_top_cases\": 5}, {\"drug\": \"Furosemide\", \"in_n_of_top_cases\": 5}, {\"drug\": \"Vancomycin\", \"in_n_of_top_cases\": 4}, {\"drug\": \"Warfarin\", \"in_n_of_top_cases\": 4}, {\"drug\": \"Pantoprazole\", \"in_n_of_top_cases\": 3}], \"source\": \"MIMIC-III demo 训练集住院(不含当前病例本体)\"}"
+    },
+    {
+      "role": "assistant",
+      "content": "**推荐清单**:  \n- **Docusate** | 推荐理由: GNN评分2.081，支持诊断包括充血性心力衰竭(共现33次)、心房颤动(32次)、急性呼吸衰竭(19次)；相似病例中常用(5/5例)。 | 安全说明: 与已知用药无Major冲突；作为 stool softener，可辅助缓解便秘，但需避免与矿物油同用。  \n- **Acetaminophen** | 推荐理由: GNN评分2.066，支持诊断包括心房颤动(34次)、充血性心力衰竭(27次)、急性呼吸衰竭(22次)；相似病例中常用(5/5例)。 | 安全说明: 与已知用药无Major冲突；需注意肝脏警告，每日不超过4000mg，避免与含酒精饮料同用。  \n- **Vancomycin** | 推荐理由: GNN评分1.928，支持诊断包括心房颤动(26次)、充血性心力衰竭(25次)、急性呼吸衰竭(25次)；相似病例中常用(4/5例)。 | 安全说明: 与已知用药无Major冲突；用于严重感染，但需监测肾功能和血小板(患者有血小板减少症)，输注速度应缓慢。  \n- **Pantoprazole** | 推荐理由: GNN评分1.887，支持诊断包括充血性心力衰竭(27次)、心房颤动(26次)、急性呼吸衰竭(24次)；相似病例中常用(3/5例)。 | 安全说明: 与已知用药无Major冲突；用于胃食管反流或应激性溃疡预防，但需注意潜在药物相互作用(如与氯化钾的未知级别冲突)。  \n\n**风险提示**:  \n- 未覆盖项: GNN推荐的Midazolam、Fentanyl因患者有急性呼吸衰竭，使用镇静剂可能抑制呼吸，故未推荐；Pneumococcal Vac Polyvalent为疫苗，非紧急用药，需根据临床需要决定。  \n- 需药师复核要点: 已知用药中存在Major冲突，如Insulin Human与Levofloxacin、Heparin与Enoxaparin，需评估联合使用的必要性并加强监测；所有推荐药物需结合患者当前状况(如血小板减少症、肾功能)个体化调整。  \n\n推荐清单: Docusate, Acetaminophen, Vancomycin, Pantoprazole  \n本结果为研究原型输出，不构成医疗建议。",
+      "reasoning_content": "相似病例的常用药包括：胰岛素、对乙酰氨基酚、肝素、多库酯、呋塞米、万古霉素、华法林、泮托拉唑。其中，胰岛素、肝素、多库酯已在推荐或已知用药中。呋塞米不在GNN推荐中，但相似病例常用，可能用于心衰，但患者已知用药中有美托洛尔，呋塞米是利尿剂，常用于心衰。华法林是抗凝药，患者有房颤，可能需要抗凝，但已知用药中有肝素和依诺肝素，可能不需要华法林。\n\nGNN推荐中没有呋塞米和华法林，但相似病例常用。我需要基于证据调整。\n\n现在，回顾GNN推荐的新药：Docusate, Acetaminophen, Vancomycin, Pantoprazole, Midazolam, Fentanyl, Pneumococcal Vac Polyvalent。\n\n其中，Docusate, Acetaminophen, Vancomycin, Pantoprazole在相似病例中也常用，所以证据较强。\n\nMidazolam和Fentanyl在相似病例中没有提到，可能不常用。Pneumococcal Vac是疫苗，可能用于预防感染。\n\n患者有急性呼吸衰竭和慢性支气管炎急性加重，可能需要疫苗，但GNN推荐它，支持条件包括房颤和心衰。\n\n现在，我需要检查DDI。对于最终推荐清单，我应该只推荐新药，并确保与已知用药无Major冲突。\n\n从DDI检查结果看，新药与已知用药之间没有Major冲突，但有一些Unknown级别。\n\n已知用药之间的Major冲突：Insulin Human与Levofloxacin Major，Heparin与Enoxaparin Major。这些是已知用药，可能需要警示，但不是推荐新药的问题。\n\n对于推荐新药，我决定推荐Docusate, Acetaminophen, Vancomycin, Pantoprazole，因为它们有GNN高分和相似病例支持。\n\nMidazolam和Fentanyl可能风险较高，因为患者有呼吸衰竭，镇静剂可能抑制呼吸。Pneumococcal Vac可能不是紧急用药，但可以考虑。\n\n为了安全，我可能只推荐前四个。\n\n现在，格式化推荐清单。\n\n首先，列出最终推荐的新药：Docusate, Acetaminophen, Vancomycin, Pantoprazole。\n\n对于每个药物，给出推荐理由和安全说明。\n\n推荐理由引用诊断或证据数字。\n\n例如：\n- Docusate: GNN score 2.081, 支持条件包括充血性心力衰竭、房颤、急性呼吸衰竭；相似病例中常用。\n- Acetaminophen: GNN score 2.066, 支持条件包括房颤、充血性心力衰竭、急性呼吸衰竭；相似病例中常用。\n- Vancomycin: GNN score 1.928, 支持条件包括房颤、充血性心力衰竭、急性呼吸衰竭；相似病例中常用。\n- Pantoprazole: GNN score 1.887, 支持条件包括充血性心力衰竭、房颤、急性呼吸衰竭；相似病例中常用。\n\n安全说明：基于DDI检查，与已知用药无Major冲突；但需注意患者有血小板减少症，使用Vancomycin需监测肾功能和血小板；Acetaminophen需注意肝脏警告。\n\n风险提示：未覆盖项，如Midazolam和Fentanyl未推荐因呼吸衰竭风险；需药师复核已知用药之间的Major冲突，如胰岛素与左氧氟沙星、肝素与依诺肝素。\n\n最后，输出格式。\n"
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "task": "DDI 链接预测(药物组合风险预筛)",
+  "n_drug_nodes": 1939,
+  "n_positive_pairs": 160235,
+  "graph_density": 0.08528,
+  "split": {
+    "train": 136201,
+    "val": 12017,
+    "test": 12017,
+    "negative_sampling": "1:1, 过滤全部正样本",
+    "seed": 42
+  },
+  "model": {
+    "type": "GCN",
+    "layers": 2,
+    "dim": 64,
+    "dropout": 0.2,
+    "lr": 0.02,
+    "weight_decay": 1e-05,
+    "epochs_run": 82
+  },
+  "val": {
+    "auc": 0.8503,
+    "ap": 0.7729,
+    "best_epoch": 21
+  },
+  "test": {
+    "auc": 0.8467,
+    "ap": 0.7691
+  },
+  "train_seconds": 71.3,
+  "score_contrast_demo": {
+    "candidate_drugs": 114,
+    "known_pair_mean_score_x1000": 0.0,
+    "known_pair_count": 2647,
+    "novel_pair_mean_score_x1000": 0.0,
+    "novel_pair_count": 3794,
+    "auc_known_vs_novel": 0.7893,
+    "top_novel": [
+      {
+        "score_x1000": 0.0,
+        "drug_a": "metoprolol",
+        "drug_b": "simethicone"
+      },
+      {
+        "score_x1000": 0.0,
+        "drug_a": "insulin glargine",
+        "drug_b": "insulin human"
+      },
+      {
+        "score_x1000": 0.0,
+        "drug_a": "atenolol",
+        "drug_b": "simethicone"
+      },
+      {
+        "score_x1000": 0.0,
+        "drug_a": "simethicone",
+        "drug_b": "timolol"
+      },
+      {
+        "score_x1000": 0.0,
+        "drug_a": "amiodarone",
+        "drug_b": "diltiazem"
+      }
+    ],
+    "interpretation": "已知相互作用药对的分数应明显高于未收录组合(auc_known_vs_novel 即二者可分性); 分数为点积原值×1000(绝对尺度小, 秩不变); 未收录组合中分数最接近已知水平的才值得人工复核"
+  }
+}

@@ -1,0 +1,12 @@
+# 虚拟环境与缓存
+.venv/
+__pycache__/
+*.pyc
+
+# 原始数据与中间数据:
+# 许可原因不随代码分发(MIMIC ODbL / DDInter 学术用途), 用 scripts/download_data.py 获取
+data/raw/
+data/processed/
+
+# 训练产物(由脚本生成, 可复现)
+results/rec_model.pt

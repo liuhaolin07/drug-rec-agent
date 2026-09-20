@@ -1,0 +1,30 @@
+MIT License
+
+Copyright (c) 2026 DrugRec-Agent contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+-----------------------------------------------------------------------------
+注意 / Note on data licenses:
+本仓库只包含代码与实验结果, 不包含任何原始医疗数据。
+使用者需自行从官方渠道下载数据, 并遵守各自的许可条款:
+  - MIMIC-III Clinical Database Demo v1.4 (MIT-LCP): ODbL v1.0, 引用要求见 PhysioNet
+  - DDInter 数据库: 仅限学术研究使用, 请引用其论文
+  - openFDA: 美国政府公开数据
+本代码与模型仅供研究与教学, 不构成医疗建议。

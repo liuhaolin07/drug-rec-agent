@@ -1,0 +1,202 @@
+{
+  "cases": [
+    100375,
+    102203,
+    114648,
+    117105,
+    118192
+  ],
+  "baseline": [
+    {
+      "recommended_parsed": 9,
+      "hits": 3,
+      "target_size": 9,
+      "recall@10": 0.3333333333333333,
+      "hit_drugs": [
+        "Vancomycin",
+        "Potassium Chloride",
+        "Docusate"
+      ],
+      "ddi_major@10": 0,
+      "ddi_major_moderate@10": 5,
+      "hadm_id": 100375,
+      "steps": 1,
+      "tool_calls": 0,
+      "tool_errors": 0,
+      "seconds": 49.5
+    },
+    {
+      "recommended_parsed": 7,
+      "hits": 2,
+      "target_size": 14,
+      "recall@10": 0.14285714285714285,
+      "hit_drugs": [
+        "Lactulose",
+        "Albumin"
+      ],
+      "ddi_major@10": 2,
+      "ddi_major_moderate@10": 4,
+      "hadm_id": 102203,
+      "steps": 1,
+      "tool_calls": 0,
+      "tool_errors": 0,
+      "seconds": 37.9
+    },
+    {
+      "recommended_parsed": 10,
+      "hits": 0,
+      "target_size": 12,
+      "recall@10": 0.0,
+      "hit_drugs": [],
+      "ddi_major@10": 0,
+      "ddi_major_moderate@10": 4,
+      "hadm_id": 114648,
+      "steps": 1,
+      "tool_calls": 0,
+      "tool_errors": 0,
+      "seconds": 85.3
+    },
+    {
+      "recommended_parsed": 8,
+      "hits": 4,
+      "target_size": 20,
+      "recall@10": 0.2,
+      "hit_drugs": [
+        "Norepinephrine",
+        "Sodium Bicarbonate",
+        "Furosemide",
+        "Albumin"
+      ],
+      "ddi_major@10": 2,
+      "ddi_major_moderate@10": 5,
+      "hadm_id": 117105,
+      "steps": 1,
+      "tool_calls": 0,
+      "tool_errors": 0,
+      "seconds": 35.9
+    },
+    {
+      "recommended_parsed": 5,
+      "hits": 0,
+      "target_size": 12,
+      "recall@10": 0.0,
+      "hit_drugs": [],
+      "ddi_major@10": 3,
+      "ddi_major_moderate@10": 4,
+      "hadm_id": 118192,
+      "steps": 1,
+      "tool_calls": 0,
+      "tool_errors": 0,
+      "seconds": 57.3
+    }
+  ],
+  "agent": [
+    {
+      "recommended_parsed": 5,
+      "hits": 4,
+      "target_size": 9,
+      "recall@10": 0.4444444444444444,
+      "hit_drugs": [
+        "Vancomycin",
+        "Docusate",
+        "Potassium Chloride",
+        "Senna"
+      ],
+      "ddi_major@10": 0,
+      "ddi_major_moderate@10": 0,
+      "hadm_id": 100375,
+      "steps": 4,
+      "tool_calls": 3,
+      "tool_errors": 0,
+      "seconds": 36.1
+    },
+    {
+      "recommended_parsed": 3,
+      "hits": 2,
+      "target_size": 14,
+      "recall@10": 0.14285714285714285,
+      "hit_drugs": [
+        "Docusate",
+        "Heparin"
+      ],
+      "ddi_major@10": 0,
+      "ddi_major_moderate@10": 0,
+      "hadm_id": 102203,
+      "steps": 8,
+      "tool_calls": 10,
+      "tool_errors": 0,
+      "seconds": 103.7
+    },
+    {
+      "recommended_parsed": 2,
+      "hits": 1,
+      "target_size": 12,
+      "recall@10": 0.08333333333333333,
+      "hit_drugs": [
+        "Senna"
+      ],
+      "ddi_major@10": 0,
+      "ddi_major_moderate@10": 0,
+      "hadm_id": 114648,
+      "steps": 5,
+      "tool_calls": 4,
+      "tool_errors": 0,
+      "seconds": 89.5
+    },
+    {
+      "recommended_parsed": 4,
+      "hits": 2,
+      "target_size": 20,
+      "recall@10": 0.1,
+      "hit_drugs": [
+        "Norepinephrine",
+        "Heparin"
+      ],
+      "ddi_major@10": 0,
+      "ddi_major_moderate@10": 1,
+      "hadm_id": 117105,
+      "steps": 6,
+      "tool_calls": 10,
+      "tool_errors": 0,
+      "seconds": 63.5
+    },
+    {
+      "recommended_parsed": 4,
+      "hits": 2,
+      "target_size": 12,
+      "recall@10": 0.16666666666666666,
+      "hit_drugs": [
+        "Docusate",
+        "Pantoprazole"
+      ],
+      "ddi_major@10": 0,
+      "ddi_major_moderate@10": 0,
+      "hadm_id": 118192,
+      "steps": 9,
+      "tool_calls": 8,
+      "tool_errors": 0,
+      "seconds": 51.2
+    }
+  ],
+  "summary": {
+    "baseline": {
+      "recall@10": 0.135,
+      "hits": 1.8,
+      "ddi_major@10": 1.4,
+      "ddi_major_moderate@10": 4.4,
+      "steps": 1.0,
+      "seconds": 53.18,
+      "tool_calls": 0.0
+    },
+    "agent": {
+      "recall@10": 0.187,
+      "hits": 2.2,
+      "ddi_major@10": 0.0,
+      "ddi_major_moderate@10": 0.2,
+      "steps": 6.4,
+      "seconds": 68.8,
+      "tool_calls": 7.0
+    }
+  },
+  "runtime_seconds": 612.6
+}
