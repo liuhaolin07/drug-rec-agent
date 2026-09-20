@@ -149,7 +149,13 @@ uv pip install --python .venv/Scripts/python.exe -r requirements.txt
 .venv/Scripts/python.exe src/agent/run_cases.py 5    # 实验三 基线 vs Agent 评测
 ```
 
-> Agent 部分调用本机配置的 OpenAI 兼容接口（环境变量 `DOTS_API_KEY`，Windows 用户环境变量）；其余脚本完全离线。
+> Agent 部分需要任意 OpenAI 兼容的 LLM 接口（其余脚本完全离线）。相关环境变量：`DRUG_AGENT_LLM_BASE_URL`（端点地址）、`DRUG_AGENT_LLM_MODEL`（模型名）、`DRUG_AGENT_LLM_API_KEY`（密钥，也兼容 `DOTS_API_KEY` / `OPENAI_API_KEY`）。
+
+### 在其他电脑 / 服务器上运行（无本机依赖）
+
+- `git clone` 仓库 → 运行 `scripts/download_data.py` → 按上面 1)~3) 步执行即可；**Linux/macOS 请把 `.venv/Scripts/python.exe` 换成 `.venv/bin/python`**。
+- 环境要求：Python ≥ 3.10，**纯 CPU 可跑**（无需显卡），约 2GB 磁盘；也可以部署在服务器 / 云主机上长期运行。
+- 只有 Agent 一步需要 LLM Key（任何 OpenAI 兼容端点都行，例如本地 vLLM / DeepSeek / OpenAI）；其余脚本完全离线、无需任何密钥。
 
 ## 6. PyCharm 里的使用步骤（图形界面）
 

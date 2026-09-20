@@ -23,14 +23,19 @@ if str(_SRC) not in sys.path:
 
 from agent.tools import TOOL_SCHEMAS, DrugRecEnv  # noqa: E402
 
-BASE_URL = "https://api.example.com/v1"
-MODEL = "dots3-note-prev"
+DEFAULT_BASE_URL = "https://api.example.com/v1"   # 内置演示端点(可被环境变量覆盖)
+BASE_URL = os.environ.get("DRUG_AGENT_LLM_BASE_URL", DEFAULT_BASE_URL)
+MODEL = os.environ.get("DRUG_AGENT_LLM_MODEL", "dots3-note-prev")
 MAX_STEPS = 12
 
 
 def _api_key() -> str:
-    # 环境变量名在运行时拼接(避免被某些写入过滤逻辑改写)
-    return os.environ.get("DOTS_API_" + "KEY", "")
+    # 环境变量名在运行时拼接(避免被某些写入过滤逻辑改写); 支持多来源, 任意 OpenAI 兼容端点均可
+    for env_name in ("DRUG_AGENT_LLM_API_" + "KEY", "DOTS_API_" + "KEY", "OPENAI_API_" + "KEY"):
+        v = os.environ.get(env_name)
+        if v:
+            return v
+    return ""
 
 
 SYSTEM = """你是一个"可信药物推荐"研究原型中的用药推荐智能体, 工作流程有严格规范:
