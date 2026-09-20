@@ -4,6 +4,9 @@
   - 一切结论可回溯到"证据"(诊断-药物边权重 / DDInter 记录 / openFDA 原文);
   - 安全约束在工具层强制执行(GNN 推荐自动排除与已知用药冲突的候选);
   - 工具错误不抛出, 返回带 error 字段的 JSON, 让模型自行修正。
+
+除 LLM 工具外, 这里还提供网页版(webapp/)复用的接口:
+  find_conditions_by_text / find_drugs_by_text / web_overview / recommend_for_conditions
 """
 from __future__ import annotations
 
@@ -22,9 +25,8 @@ _SRC = Path(__file__).resolve().parents[1]
 if str(_SRC) not in sys.path:
     sys.path.insert(0, str(_SRC))
 
-from common import (PROC, RAW, RES, SEED, clean_drug_name, norm_name,  # noqa: E402
-                    strip_salts)
-from prep_data import expand_candidates, load_ddinter  # noqa: E402
+from common import (PROC, RAW, RES, SEED, norm_name)  # noqa: E402
+from prep_data import ALIASES, expand_candidates, load_ddinter  # noqa: E402
 from rec_model import (HeteroRec, build_adj_dc, build_adj_cp,  # noqa: E402
                        ddi_partner_maps, make_scenarios, scores_for_adm)
 
@@ -49,8 +51,7 @@ class DrugRecEnv:
         self.display2idx = {norm_name(str(r.display)): int(r.drug_idx) for r in self.drugs.itertuples()}
         self.idx2display = {int(r.drug_idx): str(r.display) for r in self.drugs.itertuples()}
         self.idx2n_adm = {int(r.drug_idx): int(r.n_adm) for r in self.drugs.itertuples()}
-        cond_rows = {int(r.cond_idx): (str(r.icd9_code), str(r.title)) for r in self.conds.itertuples()}
-        self.cond_rows = cond_rows
+        self.cond_rows = {int(r.cond_idx): (str(r.icd9_code), str(r.title)) for r in self.conds.itertuples()}
 
         # ---- 药物-诊断边(用于"证据链"): drug_idx -> [(cond_idx, weight)]
         self.dc_by_drug: dict[int, list[tuple[int, int]]] = defaultdict(list)
@@ -85,7 +86,7 @@ class DrugRecEnv:
 
         self._openfda_cache: dict[str, dict] = {}
 
-    # ================================================================= 工具实现
+    # ================================================================= LLM 工具
     def patient_profile(self, hadm_id: int) -> dict:
         """住院概况: 诊断列表 + 已知用药 + 基本信息。"""
         hadm_id = int(hadm_id)
@@ -95,9 +96,7 @@ class DrugRecEnv:
                  for c in self.cond_ids[hadm_id]]
         known = sorted(self.scen[hadm_id][0])
         subj = self.subj_of.get(hadm_id)
-        age = None
-        if subj in self.dob and hadm_id in self.admittime:
-            age = float(np.round((self.admittime[hadm_id] - self.dob[subj]).days / 365.25, 1))
+        age = self._age_years(hadm_id)
         return {
             "hadm_id": hadm_id,
             "patient_age_bucket": ">=89" if (age or 0) >= 89 else age,  # MIMIC 90+ 岁统一模糊化
@@ -108,19 +107,21 @@ class DrugRecEnv:
             "note": "known_medications 为患者当前/已知在用药清单; 任务是在此基础上推荐需要补充的药物",
         }
 
-    def recommend_drugs(self, hadm_id: int, k: int = 10) -> dict:
-        """GNN 打分推荐(安全重排): 自动排除与已知用药存在 Major/Moderate 冲突的候选。"""
-        hadm_id = int(hadm_id)
-        if hadm_id not in self.cond_ids:
-            return {"error": f"hadm_id {hadm_id} 不存在"}
-        cids = self.cond_ids[hadm_id]
+    def recommend_for_conditions(self, cond_ids: list[int], known_meds: set[int], k: int = 10) -> dict:
+        """核心推荐: 给定诊断 id 列表 + 已知用药 id 集合, 返回 GNN 打分(安全重排后)的 top-k 与证据链。"""
+        cids = sorted({int(c) for c in cond_ids})
         if not cids:
-            return {"error": "该住院无诊断记录"}
-        known = self.scen[hadm_id][0]
+            return {"error": "没有可用的诊断"}
+        known = {int(d) for d in known_meds}
         scores = scores_for_adm(self.model, self.a_dc, self.a_cp, cids).copy()
 
         excluded = []
+        n_known_excluded = 0
         for d in range(self.n_drug):
+            if d in known:  # 已知用药不重复推荐(产品口径)
+                scores[d] = -1e9
+                n_known_excluded += 1
+                continue
             partners = self.soft.get(d, set()) & known
             if partners:
                 scores[d] = -1e9
@@ -149,11 +150,20 @@ class DrugRecEnv:
                 ],
             })
         return {
-            "method": "GNN 图表示学习打分 + DDI 安全重排(排除与已知用药 Major/Moderate 冲突)",
+            "method": "GNN 图表示学习打分 + 安全重排(排除与已知用药 Major/Moderate 冲突的候选, 且不重复推荐已知用药)",
             "recommendations": recs,
             "excluded_unsafe_candidates": excluded,
+            "excluded_known_meds_count": n_known_excluded,
             "note": "score 为模型原始打分(越高越匹配), support_conditions 给出证据链; 结果需药师复核",
         }
+
+    def recommend_drugs(self, hadm_id: int, k: int = 10) -> dict:
+        """(LLM 工具)对某次住院给出推荐。"""
+        hadm_id = int(hadm_id)
+        if hadm_id not in self.cond_ids:
+            return {"error": f"hadm_id {hadm_id} 不存在"}
+        known = self.scen[hadm_id][0]
+        return self.recommend_for_conditions(self.cond_ids[hadm_id], known, k)
 
     def check_ddi(self, drugs: list[str]) -> dict:
         """核对药物清单内的两两相互作用(依据 DDInter 数据库)。"""
@@ -240,7 +250,8 @@ class DrugRecEnv:
         return {
             "query_hadm": hadm_id,
             "similar_cases": [
-                {"hadm_id": h, "shared_conditions": [self.cond_rows[c][1] for c in sorted(inter, key=lambda c: -self.cond_rows[c][1].count(" "))[:3]],
+                {"hadm_id": h, "shared_conditions": [self.cond_rows[c][1] for c in
+                                                     sorted(inter, key=lambda c: -len(self.cond_rows[c][1]))[:3]],
                  "jaccard": round(s, 3)}
                 for s, h, inter in top
             ],
@@ -251,7 +262,76 @@ class DrugRecEnv:
             "source": "MIMIC-III demo 训练集住院(不含当前病例本体)",
         }
 
+    # ================================================================= 网页版接口
+    def find_conditions_by_text(self, text: str, limit: int = 5) -> list[dict]:
+        """按关键词模糊匹配诊断(标题子串/ICD9 前缀, 大小写不敏感), 按出现频次降序。"""
+        q = norm_name(text)
+        if not q:
+            return []
+        hits = []
+        for r in self.conds.itertuples():
+            t = norm_name(str(r.title))
+            if q in t or str(r.icd9_code).lower().startswith(q):
+                hits.append({"cond_idx": int(r.cond_idx), "icd9": str(r.icd9_code),
+                             "title": str(r.title), "n_adm": int(r.n_adm)})
+        hits.sort(key=lambda x: -x["n_adm"])
+        return hits[:limit]
+
+    def find_drugs_by_text(self, text: str, limit: int = 5) -> list[dict]:
+        """按关键词模糊匹配药物(展示名/规范名子串, 大小写不敏感), 按出现频次降序。"""
+        q = norm_name(text)
+        if not q:
+            return []
+        hits = []
+        for r in self.drugs.itertuples():
+            disp = norm_name(str(r.display))
+            if q in disp or str(r.name).startswith(q):
+                hits.append({"drug_idx": int(r.drug_idx), "display": str(r.display),
+                             "n_adm": int(r.n_adm), "ddi_matched": bool(r.ddi_matched)})
+        if not hits:  # 别名兜底: 如 aspirin -> Acetylsalicylic Acid
+            alias = ALIASES.get(q)
+            if alias and alias in self.name2idx:
+                idx = self.name2idx[alias]
+                hits.append({"drug_idx": idx, "display": self.idx2display[idx],
+                             "n_adm": self.idx2n_adm[idx],
+                             "ddi_matched": bool(self.drugs.iloc[idx]["ddi_matched"])})
+        hits.sort(key=lambda x: -x["n_adm"])
+        return hits[:limit]
+
+    def web_overview(self, max_cases: int = 40, max_conds: int = 120) -> dict:
+        """网页初始化数据: 测试病例列表 + 常用诊断列表(供快捷输入)。"""
+        train = set(self.train_hadm)
+        cases = []
+        for h in sorted(h for h in self.scen if h not in train)[:max_cases]:
+            known, _ = self.scen[h]
+            conds = [self.cond_rows[c][1] for c in self.cond_ids.get(h, [])]
+            subj = self.subj_of.get(h)
+            age = self._age_years(h)
+            cases.append({
+                "hadm_id": int(h), "age": None if (age or 0) >= 89 else age,
+                "gender": self.gender.get(subj, "?"),
+                "n_conditions": len(conds), "n_known_meds": len(known),
+                "top_conditions": conds[:5],
+            })
+        cond_list = [{"cond_idx": int(r.cond_idx), "title": str(r.title), "n_adm": int(r.n_adm)}
+                     for r in self.conds.head(max_conds).itertuples()]
+        return {"cases": cases, "conditions": cond_list,
+                "note": "病例为测试集住院; 已知用药取 half 场景(真实用药的一半), 便于对照"}
+
     # ================================================================= 内部工具
+    def _age_years(self, hadm_id: int) -> float | None:
+        """稳健计算年龄(MIMIC 日期经过平移, 可能超出 pandas Timedelta 范围, 故用 datetime 计算)。"""
+        hadm_id = int(hadm_id)
+        subj = self.subj_of.get(hadm_id)
+        if subj in self.dob and hadm_id in self.admittime:
+            try:
+                days = (self.admittime[hadm_id].to_pydatetime()
+                        - self.dob[subj].to_pydatetime()).days
+                return float(np.round(days / 365.25, 1))
+            except Exception:
+                return None
+        return None
+
     def _resolve_graph_name(self, name: str):
         n = norm_name(name)
         if n in self.name2idx:
@@ -261,12 +341,18 @@ class DrugRecEnv:
         for cand in expand_candidates(name, ""):
             if cand in self.name2idx:
                 return self.name2idx[cand]
+            alias = ALIASES.get(cand)
+            if alias and alias in self.name2idx:
+                return self.name2idx[alias]
         return None
 
     def _resolve_ddi_name(self, name: str):
         for cand in expand_candidates(name, ""):
             if cand in self.ddi_names:
                 return cand
+            alias = ALIASES.get(cand)
+            if alias and alias in self.ddi_names:
+                return alias
         return None
 
     def _openfda_lookup(self, name: str) -> dict:

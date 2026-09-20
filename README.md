@@ -3,6 +3,7 @@
 > 一个大创同款方向（GNN × 药物推荐 × LLM Agent × 医学知识图谱）的**端到端可运行原型**：
 > 真实医疗数据 → 图表示学习 → 药物推荐 → 带工具、带证据、带安全约束的 LLM Agent。
 > **本仓库里每一个数字都来自脚本的真实运行结果**（见 `results/*.json` 与 `results/log_*.txt`），可复现。
+> 两种使用方式：**命令行脚本**（完整实验管线）与 **零依赖网页版**（浏览器直接用，见 §5）。
 
 ---
 
@@ -145,17 +146,35 @@ uv pip install --python .venv/Scripts/python.exe -r requirements.txt
 .venv/Scripts/python.exe src/prep_data.py            # 建图与工件        ~10s
 .venv/Scripts/python.exe src/gnn.py                  # 实验一 DDI 链接预测 ~90s
 .venv/Scripts/python.exe src/rec_model.py            # 实验二 推荐+安全重排 ~150s
-.venv/Scripts/python.exe src/agent/drug_agent.py 142345   # 单病例 Agent 演示(需 DOTS_API_KEY)
+.venv/Scripts/python.exe src/agent/drug_agent.py 142345   # 单病例 Agent 演示(需 LLM 密钥)
 .venv/Scripts/python.exe src/agent/run_cases.py 5    # 实验三 基线 vs Agent 评测
+
+# 4) 网页版(零依赖, 可选): 启动后在浏览器打开 http://127.0.0.1:8000
+.venv/Scripts/python.exe webapp/server.py
 ```
 
-> Agent 部分需要任意 OpenAI 兼容的 LLM 接口（其余脚本完全离线）。相关环境变量：`DRUG_AGENT_LLM_BASE_URL`（端点地址）、`DRUG_AGENT_LLM_MODEL`（模型名）、`DRUG_AGENT_LLM_API_KEY`（密钥，也兼容 `DOTS_API_KEY` / `OPENAI_API_KEY`）。
+> Agent 部分需要任意 OpenAI 兼容的 LLM 接口（其余脚本完全离线）。相关环境变量：`DRUG_AGENT_LLM_BASE_URL`（端点地址，默认 `https://api.openai.com/v1`，可换成你自己的端点）、`DRUG_AGENT_LLM_MODEL`（模型名）、`DRUG_AGENT_LLM_API_KEY`（密钥，也兼容 `DOTS_API_KEY` / `OPENAI_API_KEY`）。
 
 ### 在其他电脑 / 服务器上运行（无本机依赖）
 
 - `git clone` 仓库 → 运行 `scripts/download_data.py` → 按上面 1)~3) 步执行即可；**Linux/macOS 请把 `.venv/Scripts/python.exe` 换成 `.venv/bin/python`**。
 - 环境要求：Python ≥ 3.10，**纯 CPU 可跑**（无需显卡），约 2GB 磁盘；也可以部署在服务器 / 云主机上长期运行。
 - 只有 Agent 一步需要 LLM Key（任何 OpenAI 兼容端点都行，例如本地 vLLM / DeepSeek / OpenAI）；其余脚本完全离线、无需任何密钥。
+
+### 网页版（零依赖，浏览器直接用）
+
+![Web UI](docs/webui.png)
+
+```bash
+.venv/Scripts/python.exe webapp/server.py                  # 默认 http://127.0.0.1:8000
+.venv/Scripts/python.exe webapp/server.py --host 0.0.0.0   # 供局域网/队友访问(无鉴权, 注意安全)
+```
+
+三个功能页：**病例推荐**（选真实测试病例或手动输入诊断/已知用药 → GNN 打分 + 安全重排 + DDInter 核对）、**DDI 核对**（任意药名清单两两核对）、**Agent 分析**（完整工具调用循环，逐步显示调用轨迹）。
+访问 `http://127.0.0.1:8000/?demo=1` 会自动跑一次演示；冒烟测试：`bash scripts/check_webapp_headless.sh`。
+
+说明：默认只绑定本机；绑定 `0.0.0.0` 后同网段任何人可访问（无鉴权），且 Agent 分析会消耗本机 LLM 密钥。
+产品路径比离线评测多一层过滤：不重复推荐患者已知用药（离线表格未含该过滤，线上表现会略优于表格）。
 
 ## 6. PyCharm 里的使用步骤（图形界面）
 
@@ -184,7 +203,11 @@ drug-rec-agent/
 │     ├─ drug_agent.py  # LLM 工具调用循环
 │     └─ run_cases.py   # 实验三: 基线 vs Agent 评测
 ├─ scripts/
-│  └─ download_data.py  # 一键下载原始数据(标准库, 跨平台)
+│  ├─ download_data.py          # 一键下载原始数据(标准库, 跨平台)
+│  └─ check_webapp_headless.sh  # 网页版无头浏览器冒烟测试(可选)
+├─ webapp/            # 零依赖网页版: server.py(标准库 HTTP) + index.html(单页前端)
+├─ docs/
+│  └─ webui.png       # 网页版界面截图
 ├─ results/           # 指标JSON + 曲线图 + 日志 + agent_logs/ 完整轨迹
 ├─ requirements.txt
 ├─ LICENSE            # 代码 MIT; 数据许可说明见文件末尾

@@ -23,9 +23,9 @@ if str(_SRC) not in sys.path:
 
 from agent.tools import TOOL_SCHEMAS, DrugRecEnv  # noqa: E402
 
-DEFAULT_BASE_URL = "https://api.example.com/v1"   # 内置演示端点(可被环境变量覆盖)
+DEFAULT_BASE_URL = "https://api.openai.com/v1"   # 任意 OpenAI 兼容端点均可, 用环境变量覆盖
 BASE_URL = os.environ.get("DRUG_AGENT_LLM_BASE_URL", DEFAULT_BASE_URL)
-MODEL = os.environ.get("DRUG_AGENT_LLM_MODEL", "dots3-note-prev")
+MODEL = os.environ.get("DRUG_AGENT_LLM_MODEL", "gpt-4o-mini")
 MAX_STEPS = 12
 
 
@@ -95,6 +95,7 @@ def run_agent(env: DrugRecEnv, hadm_id: int, max_steps: int = MAX_STEPS,
 
     tool_calls_n = tool_errors_n = 0
     steps = 0
+    trace: list[dict] = []
     for step in range(1, max_steps + 1):
         msg = call_llm(messages, TOOL_SCHEMAS if use_tools else None)
         messages.append(msg)
@@ -118,13 +119,15 @@ def run_agent(env: DrugRecEnv, hadm_id: int, max_steps: int = MAX_STEPS,
             if verbose:
                 preview = result[:110].replace("\n", " ")
                 print(f"    [step {step}] {name}({json.dumps(args, ensure_ascii=False)[:80]}) -> {preview}...", flush=True)
+            trace.append({"step": step, "tool": name, "args": args,
+                          "result_preview": result[:400].replace("\n", " ")})
             messages.append({"role": "tool", "tool_call_id": tc["id"], "content": result})
     else:
         messages.append({"role": "assistant", "content": "(达到步数上限, 未完成任务)"})
 
     final = messages[-1].get("content") or ""
     return {"final": final, "steps": steps, "tool_calls": tool_calls_n,
-            "tool_errors": tool_errors_n, "messages": messages}
+            "tool_errors": tool_errors_n, "messages": messages, "trace": trace}
 
 
 if __name__ == "__main__":

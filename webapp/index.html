@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DrugRec-Agent 演示台</title>
+<style>
+  :root { --bg:#f4f6f9; --card:#fff; --ink:#1d2733; --mut:#6b7a90; --line:#e3e8ef;
+          --accent:#0f6fbc; --accent2:#0b5a99; --ok:#1e8e63; --warn:#b26a00; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+         font-family:"Segoe UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif; }
+  header { background:linear-gradient(120deg,#0f6fbc,#0a4f86); color:#fff; padding:18px 26px; }
+  header h1 { margin:0; font-size:20px; letter-spacing:.5px; }
+  header p { margin:6px 0 0; font-size:12.5px; opacity:.85; }
+  .wrap { max-width:1180px; margin:18px auto; padding:0 18px 40px; }
+  .tabs { display:flex; gap:8px; margin-bottom:14px; }
+  .tab { padding:9px 18px; border-radius:9px 9px 0 0; background:#e8edf4; color:#41506b;
+         cursor:pointer; font-size:14px; border:1px solid var(--line); border-bottom:none; }
+  .tab.on { background:#fff; color:var(--accent); font-weight:600; }
+  .panel { display:none; }
+  .panel.on { display:block; }
+  .grid { display:grid; grid-template-columns:390px 1fr; gap:16px; }
+  @media (max-width:900px){ .grid{ grid-template-columns:1fr; } }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px 18px; }
+  .card h3 { margin:0 0 10px; font-size:14.5px; color:var(--accent2); }
+  label { font-size:13px; color:var(--mut); display:block; margin:10px 0 4px; }
+  select, textarea, input[type=text] { width:100%; padding:8px 10px; border:1px solid var(--line);
+         border-radius:8px; font-size:13.5px; font-family:inherit; background:#fbfcfe; }
+  textarea { resize:vertical; min-height:84px; font-family:ui-monospace,Consolas,monospace; }
+  button { margin-top:12px; padding:9px 20px; border:none; border-radius:8px; background:var(--accent);
+           color:#fff; font-size:14px; cursor:pointer; }
+  button:hover { background:var(--accent2); }
+  button:disabled { background:#9db4c8; cursor:wait; }
+  .chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+  .chip { font-size:12px; background:#eaf2fa; color:#20537f; border:1px solid #d3e3f2;
+          padding:3px 9px; border-radius:20px; cursor:pointer; }
+  .chip:hover { background:#d8e9f7; }
+  table { width:100%; border-collapse:collapse; font-size:13px; margin-top:8px; }
+  th, td { text-align:left; padding:7px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { color:var(--mut); font-weight:600; background:#f8fafc; }
+  .badge { display:inline-block; padding:1px 8px; border-radius:10px; font-size:11.5px; font-weight:600; }
+  .b-major { background:#fdecea; color:#c62828; }
+  .b-moderate { background:#fff3e0; color:#ef6c00; }
+  .b-minor { background:#fffde7; color:#9e7c00; }
+  .b-unknown { background:#eceff1; color:#546e7a; }
+  .muted { color:var(--mut); font-size:12.5px; }
+  .err { background:#fdecea; color:#b3261e; padding:10px 12px; border-radius:8px; font-size:13px; }
+  .okbox { background:#e8f5ee; color:#155f42; padding:10px 12px; border-radius:8px; font-size:13px; }
+  .stat { display:flex; gap:14px; flex-wrap:wrap; margin:10px 0; }
+  .stat div { background:#f8fafc; border:1px solid var(--line); border-radius:8px; padding:6px 12px; font-size:12.5px; }
+  .stat b { font-size:15px; color:var(--accent2); }
+  pre.final { white-space:pre-wrap; background:#f8fafc; border:1px solid var(--line);
+              border-radius:10px; padding:14px; font-size:13px; line-height:1.65;
+              font-family:"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif; }
+  .spin { display:inline-block; width:14px; height:14px; border:2px solid #c9d6e2;
+          border-top-color:var(--accent); border-radius:50%; animation:sp 0.9s linear infinite;
+          vertical-align:-2px; margin-right:8px; }
+  @keyframes sp { to { transform:rotate(360deg); } }
+  .sec-title { margin:16px 0 4px; font-size:14px; color:var(--accent2); font-weight:600; }
+</style>
+</head>
+<body>
+<header>
+  <h1>DrugRec-Agent 演示台 · 基于图表示学习的可信药物推荐</h1>
+  <p>MIMIC-III demo 真实病历 + DDInter 真实相互作用库 + GNN 推荐模型 + LLM 工具调用　|　研究原型输出，不构成医疗建议</p>
+</header>
+<div class="wrap">
+  <div class="tabs">
+    <div class="tab on" data-t="rec">病例推荐</div>
+    <div class="tab" data-t="ddi">DDI 核对</div>
+    <div class="tab" data-t="agent">Agent 分析</div>
+  </div>
+
+  <!-- ============ 病例推荐 ============ -->
+  <div class="panel on" id="p-rec">
+    <div class="grid">
+      <div class="card">
+        <h3>输入</h3>
+        <label><input type="radio" name="mode" value="hadm" checked> 按病例（真实测试集住院）</label>
+        <label><input type="radio" name="mode" value="manual"> 手动输入诊断 / 已知用药</label>
+
+        <div id="box-hadm">
+          <label>选择住院号</label>
+          <select id="caseSelect"></select>
+          <div class="muted" id="caseInfo" style="margin-top:6px"></div>
+        </div>
+
+        <div id="box-manual" style="display:none">
+          <label>诊断（每行一个英文名）</label>
+          <textarea id="condText" placeholder="Atrial fibrillation&#10;Sepsis&#10;Diabetes mellitus"></textarea>
+          <div class="chips" id="condChips"></div>
+          <label>已知用药（每行一个英文名）</label>
+          <textarea id="medText" placeholder="Heparin&#10;Warfarin"></textarea>
+          <div class="chips" id="medChips"></div>
+        </div>
+
+        <button id="btnRec" onclick="runRecommend()">生成推荐</button>
+      </div>
+      <div class="card" id="recResult"><div class="muted">左侧选择病例或输入诊断，然后点击“生成推荐”。<br><br>
+        流程：GNN 图表示学习打分 → 排除与已知用药有 Major/Moderate 相互作用的候选 → 对最终清单做 DDInter 真实核对。</div></div>
+    </div>
+  </div>
+
+  <!-- ============ DDI ============ -->
+  <div class="panel" id="p-ddi">
+    <div class="grid">
+      <div class="card">
+        <h3>药物清单（每行一个英文名）</h3>
+        <textarea id="ddiText" style="min-height:150px">Warfarin
+Aspirin
+Amiodarone</textarea>
+        <button onclick="runDdi()">核对相互作用</button>
+      </div>
+      <div class="card" id="ddiResult"><div class="muted">依据 DDInter 数据库（本地 16 万对记录）做两两核对，附严重程度。</div></div>
+    </div>
+  </div>
+
+  <!-- ============ Agent ============ -->
+  <div class="panel" id="p-agent">
+    <div class="grid">
+      <div class="card">
+        <h3>让 Agent 完整分析一个病例</h3>
+        <label>选择住院号</label>
+        <select id="agentSelect"></select>
+        <button id="btnAgent" onclick="runAgent()">运行 Agent 分析</button>
+        <div class="muted" style="margin-top:10px">Agent 会依次：读病历 → GNN 推荐 → 核对 DDI → 查证据 → 输出带引用与安全说明的清单。
+          单次约 1~3 分钟，需要本机已配置 LLM 密钥。</div>
+      </div>
+      <div class="card" id="agentResult"><div class="muted">选择病例后点击运行。完整工具调用轨迹会显示在这里。</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const lvlBadge = l => `<span class="badge ${({Major:'b-major',Moderate:'b-moderate',Minor:'b-minor'})[l]||'b-unknown'}">${esc(l)}</span>`;
+async function api(path, body) {
+  const opts = body ? {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)} : {};
+  const r = await fetch(path, opts);
+  return r.json();
+}
+let OVERVIEW = null;
+
+document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
+  document.querySelectorAll('.tab').forEach(x => x.classList.toggle('on', x === t));
+  document.querySelectorAll('.panel').forEach(p => p.classList.toggle('on', p.id === 'p-' + t.dataset.t));
+});
+document.querySelectorAll('input[name=mode]').forEach(r => r.onchange = () => {
+  const hadm = $('input[name=mode]:checked').value === 'hadm';
+  $('#box-hadm').style.display = hadm ? '' : 'none';
+  $('#box-manual').style.display = hadm ? 'none' : '';
+});
+
+function caseLabel(c) {
+  return `#${c.hadm_id} · ${c.gender}${c.age ? ' / ' + c.age + '岁' : ''} · 诊断${c.n_conditions}个 · 已知用药${c.n_known_meds}种`;
+}
+async function init() {
+  OVERVIEW = await api('/api/overview');
+  const opts = OVERVIEW.cases.map(c => `<option value="${c.hadm_id}">${caseLabel(c)}</option>`).join('');
+  $('#caseSelect').innerHTML = opts;
+  $('#agentSelect').innerHTML = opts;
+  const upd = () => {
+    const c = OVERVIEW.cases.find(x => x.hadm_id == $('#caseSelect').value);
+    if (c) $('#caseInfo').textContent = '主要诊断：' + c.top_conditions.join('；');
+  };
+  $('#caseSelect').onchange = upd; upd();
+  const addChip = (root, text, ta) => {
+    const d = document.createElement('span'); d.className = 'chip'; d.textContent = text;
+    d.onclick = () => { ta.value = (ta.value.trim() + '\n' + text).trim(); };
+    root.appendChild(d);
+  };
+  const cc = $('#condChips');
+  OVERVIEW.conditions.slice(0, 24).forEach(x => addChip(cc, x.title, $('#condText')));
+  ['Heparin','Furosemide','Metoprolol','Insulin Human','Vancomycin','Pantoprazole','Acetaminophen','Lorazepam']
+    .forEach(n => addChip($('#medChips'), n, $('#medText')));
+  // 演示/截图模式: 访问 ?demo=1 自动跑一次第一个病例的推荐
+  if (new URLSearchParams(location.search).get('demo') === '1') {
+    setTimeout(() => $('#btnRec').click(), 400);
+  }
+}
+init();
+
+function patientCard(p) {
+  if (!p) return '';
+  const conds = (p.conditions || []).map(c => esc(c.title)).join('；');
+  const meds = (p.known_medications || []).map(esc).join('、') || '（无）';
+  return `<div class="sec-title">患者概况</div>
+    <div class="muted">诊断 ${p.conditions?.length || 0} 个：${conds}</div>
+    <div class="muted" style="margin-top:4px">已知用药：${meds}</div>`;
+}
+function recTable(recs) {
+  if (!recs || !recs.length) return '<div class="muted">无推荐</div>';
+  const rows = recs.map((r, i) => `<tr>
+    <td>${i + 1}</td><td><b>${esc(r.drug)}</b></td><td>${r.score}</td>
+    <td>${(r.support_conditions || []).map(s => esc(s.title) + ` <span class="muted">(${s.cooccur_admissions})</span>`).join('<br>') || '<span class="muted">—</span>'}</td>
+    <td>${r.historical_use_admissions}</td></tr>`).join('');
+  return `<div class="sec-title">推荐清单（安全重排后）</div>
+    <table><tr><th>#</th><th>药物</th><th>GNN分数</th><th>支持诊断（共现住院数）</th><th>历史使用</th></tr>${rows}</table>`;
+}
+function ddiBlock(ddi) {
+  if (!ddi || ddi.error) return '';
+  const rows = (ddi.interactions || []).map(x => `<tr><td>${esc(x.drug_a)}</td><td>${esc(x.drug_b)}</td>
+    <td>${lvlBadge(x.level)}</td><td class="muted">${(x.ddinter_ids || []).join(' / ')}</td></tr>`).join('');
+  return `<div class="sec-title">DDI 核对（推荐清单 + 已知用药，共 ${ddi.n_checked_pairs} 对）</div>
+    ${rows ? `<table><tr><th>药物 A</th><th>药物 B</th><th>严重程度</th><th>DDInter ID</th></tr>${rows}</table>`
+           : '<div class="okbox">未发现已收录的相互作用记录（注意：无记录不等于绝对安全，未覆盖项见下）</div>'}
+    ${(ddi.unresolved_names || []).length ? `<div class="muted" style="margin-top:6px">不在 DDI 库覆盖范围（需人工核对）：${ddi.unresolved_names.map(esc).join('、')}</div>` : ''}`;
+}
+function excludedBlock(list) {
+  if (!list || !list.length) return '';
+  return `<div class="sec-title">被安全重排排除的候选（与已知用药冲突）</div>
+    <table><tr><th>药物</th><th>冲突对象</th><th>最高等级</th></tr>
+    ${list.map(x => `<tr><td>${esc(x.drug)}</td><td>${x.conflicts_with.map(esc).join('、')}</td><td>${lvlBadge(x.max_level)}</td></tr>`).join('')}</table>`;
+}
+async function runRecommend() {
+  const mode = $('input[name=mode]:checked').value;
+  const payload = mode === 'hadm'
+    ? {mode, hadm_id: $('#caseSelect').value}
+    : {mode, conditions_text: $('#condText').value, meds_text: $('#medText').value};
+  const el = $('#recResult');
+  el.innerHTML = '<div class="muted"><span class="spin"></span>分析中…</div>';
+  try {
+    const out = await api('/api/recommend', payload);
+    if (out.error) { el.innerHTML = `<div class="err">${esc(out.error)}</div>`; return; }
+    const m = out.matched || {};
+    el.innerHTML = patientCard(out.patient) + recTable(out.recommendations)
+      + excludedBlock(out.excluded_unsafe_candidates) + ddiBlock(out.ddi)
+      + (m.unmatched?.length ? `<div class="muted" style="margin-top:8px">未匹配输入：${m.unmatched.map(esc).join('；')}</div>` : '')
+      + `<div class="muted" style="margin-top:10px">方法：${esc(out.method || '')}。研究原型输出，不构成医疗建议。</div>`;
+  } catch (e) { el.innerHTML = `<div class="err">请求失败：${esc(e)}</div>`; }
+}
+async function runDdi() {
+  const drugs = $('#ddiText').value.split(/[\n,，;；]/).map(s => s.trim()).filter(Boolean);
+  const el = $('#ddiResult');
+  el.innerHTML = '<div class="muted"><span class="spin"></span>核对中…</div>';
+  try {
+    const out = await api('/api/ddi', {drugs});
+    if (out.error) { el.innerHTML = `<div class="err">${esc(out.error)}</div>`; return; }
+    el.innerHTML = ddiBlock(out);
+  } catch (e) { el.innerHTML = `<div class="err">请求失败：${esc(e)}</div>`; }
+}
+let agentTimer = null;
+async function runAgent() {
+  const hadm = $('#agentSelect').value;
+  const el = $('#agentResult');
+  $('#btnAgent').disabled = true;
+  const t0 = Date.now();
+  el.innerHTML = '<div class="muted"><span class="spin"></span>Agent 运行中（读病历 → GNN 推荐 → DDI 核对 → 证据检索 → 生成报告），请稍候… <span id="elapsed">0s</span></div>';
+  agentTimer = setInterval(() => { const s = $('#elapsed'); if (s) s.textContent = Math.round((Date.now() - t0) / 1000) + 's'; }, 1000);
+  try {
+    const {job_id} = await api('/api/agent', {hadm_id: hadm});
+    while (true) {
+      await new Promise(r => setTimeout(r, 2000));
+      const job = await api('/api/agent/' + job_id);
+      if (job.status === 'done') { renderAgent(job); break; }
+      if (job.status === 'error') { el.innerHTML = `<div class="err">Agent 失败：${esc(job.error)}<br>提示：请确认已配置 LLM 密钥（DRUG_AGENT_LLM_API_KEY / DOTS_API_KEY / OPENAI_API_KEY）。</div>`; break; }
+    }
+  } catch (e) { el.innerHTML = `<div class="err">请求失败：${esc(e)}</div>`; }
+  clearInterval(agentTimer); $('#btnAgent').disabled = false;
+}
+function renderAgent(job) {
+  const tr = (job.trace || []).map(t => `<tr><td>${t.step}</td><td><b>${esc(t.tool)}</b></td>
+    <td class="muted" style="font-family:ui-monospace,Consolas,monospace;font-size:11.5px">${esc(JSON.stringify(t.args))}</td>
+    <td class="muted" style="font-family:ui-monospace,Consolas,monospace;font-size:11.5px">${esc((t.result_preview || '').slice(0, 180))}…</td></tr>`).join('');
+  $('#agentResult').innerHTML = `
+    <div class="stat">
+      <div>步数 <b>${job.steps}</b></div>
+      <div>工具调用 <b>${job.tool_calls}</b></div>
+      <div>工具错误 <b>${job.tool_errors}</b></div>
+      <div>耗时 <b>${job.seconds}s</b></div>
+    </div>
+    <div class="sec-title">最终报告</div>
+    <pre class="final">${esc(job.final)}</pre>
+    <div class="sec-title">工具调用轨迹</div>
+    <table><tr><th>步</th><th>工具</th><th>入参</th><th>返回（截断）</th></tr>${tr}</table>`;
+}
+</script>
+</body>
+</html>
